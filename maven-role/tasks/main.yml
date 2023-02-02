@@ -1,0 +1,21 @@
+---
+# tasks file for maven-role
+- name: intall Java
+  include_tasks: java.yml
+
+ 
+ # install maven
+- name: get maven
+  unarchive:
+    src: https://dlcdn.apache.org/maven/maven-{{ maven_major_version }}/{{ maven_version }}/binaries/apache-maven-{{ maven_version }}-bin.tar.gz
+    remote_src: yes
+    dest: /opt/
+    validate_certs: no
+ # setting environment
+- name: maven.sh
+  template:
+    src: templates/maven.sh.j2
+    dest: /etc/profile.d/maven.sh
+    mode: '755'
+- shell:
+    cmd: . /etc/profile.d/maven.sh

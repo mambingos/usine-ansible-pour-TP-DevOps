@@ -1,0 +1,27 @@
+---
+- name: dev machines provisionned
+  hosts: dev
+  become: yes
+  roles:
+
+  - role: maven-role
+  tasks:
+
+  - block:
+#    - name: install repo
+#      yum:
+#        name: https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm 
+#        state: present
+    - name: install git
+      yum: 
+        name: git
+        state: latest
+        update_cache: yes
+    when: ansible_os_family | lower == 'redhat'
+
+  - name: install on ubuntu
+    apt:
+      name: git
+      state: latest
+      update_cache: yes
+    when: ansible_os_family | lower == 'debian'
