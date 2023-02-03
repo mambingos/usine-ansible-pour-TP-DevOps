@@ -1,0 +1,13 @@
+---
+- name: ci machines provisionned
+  hosts: jenkins1 
+  become: yes
+  roles:
+    - maven-role
+    - jenkins-role
+  tasks:
+    - name: jenkins started
+      systemd:
+        name: jenkins
+        state: started
+        enabled: true 

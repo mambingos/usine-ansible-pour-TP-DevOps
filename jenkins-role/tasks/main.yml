@@ -1,0 +1,42 @@
+---
+# tasks file for jenkins-role
+- name: install utilities
+  include_tasks: utilities.yml
+
+- name: install jenkins on redhat
+  block:
+  - name: add jenkins repo
+    yum_repository:
+      name: Jenkins
+      description: "install repo"
+      baseurl: https://pkg.jenkins.io/redhat-stable
+      gpgcheck: yes
+      gpgkey: https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+      enabled: yes 
+    #update_cache: yes
+  - name: insall jenkins
+    yum:
+      name: jenkins
+
+  when: ansible_os_family | lower == "redhat"
+
+- name: install jenkins on debian
+  block:
+  - name: Add jenkins apt repository key
+    ansible.builtin.get_url:
+      url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+      dest: /usr/share/keyrings/jenkins-keyring.asc
+      mode: '0644'
+      force: true
+
+  - name: Add Jenkins apt repository.
+    apt_repository:
+      repo:  "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
+      state: present
+      update_cache: true
+
+  - name: install jenkins
+    apt:
+      name: jenkins
+  when: ansible_os_family | lower == "debian"
+
