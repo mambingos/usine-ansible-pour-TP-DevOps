@@ -1,0 +1,41 @@
+---
+# tasks file for sonarqube-role
+- name: install on debian
+  block:
+    - name: install nodejs and update reposository cache
+      apt:
+        update_cache: yes
+        name: nodejs
+        state: latest
+    - name: create a sonarqube user
+      ansible.builtin.user:
+        name: sonar
+        create_home: false
+        shell: /bin/false
+        state: present
+    - name: ensure sonar path is created
+      file:
+        path: /opt/sonar/sonar-9.8
+        state: directory
+    - name: download sonarqube
+      ansible.builtin.unarchive:
+        src: https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-9.8.0.63668.zip
+        remote_src: yes
+#        creates: /opt/sonar/sonar-9.8
+        dest: /opt/sonar/sonar-9.8
+        group: vagrant 
+        owner: sonar
+
+    - name: create sonar service
+      template:
+        src: templates/sonarqube.service.j2
+        dest: /etc/systemd/system/sonarqube.service
+        owner: root
+        group: root
+        mode: "755"
+    - name: start sonarqube
+      systemd:
+        daemon_reload: yes
+        name: sonarqube
+        state: started
+        enabled: yes

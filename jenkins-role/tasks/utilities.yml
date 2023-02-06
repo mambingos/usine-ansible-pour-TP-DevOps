@@ -17,9 +17,20 @@
         update_cache: yes
     when: ansible_os_family | lower == 'redhat'
 
-  - name: install on ubuntu
-    apt:
-      name: git
-      state: latest
-      update_cache: yes
+  - name: install on debian
+    block:
+    - name: install utilites
+      apt:
+        name:
+        - wget
+        - unzip
+        - curl
+        - net-tools
+        - tree
+
+    - name: install on ubuntu
+      apt:
+        name: git
+        state: latest
+        update_cache: yes
     when: ansible_os_family | lower == 'debian'

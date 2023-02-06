@@ -1,10 +1,13 @@
 ---
 - name: ci machines provisionned
-  hosts: jenkins1 
+  hosts: jenkins2 
   become: yes
   roles:
     - maven-role
     - jenkins-role
+#    - lrk.sonarqube
+    - sonarqube-role
+
   tasks:
     - name: jenkins started
       systemd:
