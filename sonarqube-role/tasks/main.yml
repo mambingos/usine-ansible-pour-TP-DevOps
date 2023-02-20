@@ -1,18 +1,36 @@
 ---
 # tasks file for sonarqube-role
-- name: install on debian
-  block:
-    - name: install nodejs and update reposository cache
-      apt:
-        update_cache: yes
-        name: nodejs
-        state: latest
-    - name: create a sonarqube user
-      ansible.builtin.user:
-        name: sonar
-        create_home: false
-        shell: /bin/false
-        state: present
+  - name: install on debian
+    apt:
+      update_cache: yes
+      name: nodejs
+      state: latest
+    when: ansible_os_family | lower == "debian"
+
+  - name: install on redhat
+    block:
+      - name: download nodejs    
+        yum:
+          name: centos-release-scl-rh 
+          
+      - name: install nodejs11
+        yum:
+          name: rh-nodejs10         
+    when: ansible_os_family | lower == "redhat"
+
+  - name: create a sonarqube user
+    ansible.builtin.user:
+      name: sonar
+      create_home: false
+      shell: /bin/false
+      state: present
+  - name: create a variable directory
+    stat:
+      path: /opt/sonar/
+    register: get_sonar
+
+  - name: install and download sonar
+    block:
     - name: ensure sonar path is created
       file:
         path: /opt/sonar/sonar-9.8
@@ -25,17 +43,21 @@
         dest: /opt/sonar/sonar-9.8
         group: vagrant 
         owner: sonar
-
-    - name: create sonar service
-      template:
-        src: templates/sonarqube.service.j2
-        dest: /etc/systemd/system/sonarqube.service
-        owner: root
-        group: root
-        mode: "755"
-    - name: start sonarqube
-      systemd:
-        daemon_reload: yes
-        name: sonarqube
-        state: started
-        enabled: yes
+    when: get_sonar.stat.exists == false
+  
+  - debug:
+      msg="sonar already installed"
+    when: not get_sonar.stat.exists
+  - name: create sonar service
+    template:
+      src: templates/sonarqube.service.j2
+      dest: /etc/systemd/system/sonarqube.service
+      owner: root
+      group: root
+      mode: "755"
+  - name: start sonarqube
+    systemd:
+      daemon_reload: yes
+      name: sonarqube
+      state: started
+      enabled: yes

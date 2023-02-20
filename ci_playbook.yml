@@ -1,12 +1,12 @@
 ---
 - name: ci machines provisionned
-  hosts: jenkins2 
+  hosts: ci 
   become: yes
   roles:
     - maven-role
     - jenkins-role
-#    - lrk.sonarqube
     - sonarqube-role
+    - artifactory-role
 
   tasks:
     - name: jenkins started

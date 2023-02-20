@@ -1,0 +1,41 @@
+---
+  - name: create variable to artifactory directory
+    stat:
+      path: /opt/jfrog/artifactory-7.49.5
+    register: get_artifactory
+  
+#  - name: create a variable to artifactory archive
+#    stat:
+#      path: /opt/jfrog/jfrog-artifactory-oss-7.49.5-linux.tar.gz
+#    register: get_arti_archive  
+
+
+  - name: install artifactory 
+    
+    block:
+      - name: ensure jfrog directory is created
+        file:
+          path: /opt/jfrog/
+          state: directory
+
+
+#      - get_url:
+#          url: https://releases.jfrog.io/artifactory/bintray-artifactory/org/artifactory/oss/jfrog-artifactory-oss/7.49.5/jfrog-artifactory-oss-7.49.5-linux.tar.gz
+#          dest: /opt/jfrog/
+#        when: not get_arti_archive.stat.exists
+
+      - name: decompress archive
+        unarchive:
+          src:  https://releases.jfrog.io/artifactory/bintray-artifactory/org/artifactory/oss/jfrog-artifactory-oss/7.49.5/jfrog-artifactory-oss-7.49.5-linux.tar.gz
+          remote_src: yes
+#          creates: /opt/jfrog/artifactory-7.49.5
+          dest: /opt/jfrog/
+#        when: not get_artifactory.stat.exists
+        when: get_artifactory.stat.exists == False
+
+  - debug:
+      msg="artifactory was download"
+    when: get_artifactory.stat.exists == True
+  - name: start artifactory
+    command: /opt/jfrog/artifactory-oss-7.49.5/app/bin/artifactoryctl start
+#    when: ansible_os_family |lower == "redhat"
