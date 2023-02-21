@@ -6,6 +6,7 @@ dev3 ansible_host=192.168.60.103 ansible_user=vagrant
 jenkins1 ansible_host=192.168.60.121 ansible_user=vagrant
 jenkins2 ansible_host=192.168.60.122 ansible_user=vagrant
 
+tomcat1 ansible_host=192.168.60.131 ansible_user=vagrant
 
 [dev]
 dev1
@@ -16,3 +17,6 @@ dev3
 [ci]
 jenkins1
 jenkins2
+
+[Prod]
+tomcat1

@@ -1,0 +1,7 @@
+---
+  - name: install tomcat
+    hosts: Prod
+    become: yes
+    roles:
+      - tomcat-role
+

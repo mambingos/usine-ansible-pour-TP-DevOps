@@ -1,0 +1,71 @@
+---
+# tasks file for tomcat-role
+  - name: install java
+    include_tasks: java.yml
+  
+  - name: install utilities
+    include_tasks: utilities.yml
+
+
+  - name: create a tomcat user
+    user:
+      name: tomcat
+      create_home: no
+      shell:  /bin/false
+      state: present
+
+  - name: create a tomcat directory
+    file:
+      path: /opt/tomcat8
+      owner: tomcat
+      group: tomcat
+      recurse: yes
+      state: directory
+
+
+  - name: get tomcat
+    unarchive:
+      src: https://downloads.apache.org/tomcat/tomcat-8/v8.5.85/bin/apache-tomcat-8.5.85.tar.gz
+      remote_src: yes
+      dest: /opt/tomcat8
+      owner: tomcat
+      group: tomcat
+      extra_opts: [--strip-components=1]
+
+  - name: copy user file
+    copy:
+      src: files/tomcat-users.xml
+      dest: /opt/tomcat8/conf/tomcat-users.xml
+
+  - name: copy context files
+    copy:
+      src: files/context.xml
+      dest: /opt/tomcat8/webapps/manager/META-INF/context.xml
+
+  - name: copy context files
+    copy:
+      src: files/context.xml
+      dest: /opt/tomcat8/webapps/host-manager/META-INF/context.xml
+
+  - name: copy service file
+    template:
+      src: templates/tomcat.service.j2
+      dest: /etc/systemd/system/tomcat.service
+      owner: root
+      group: root
+      mode: "755"
+
+  - name: assured ownership
+    file:
+      path: /opt/apache-tomcat-8.5.82
+      owner: tomcat
+      group: tomcat
+      recurse: yes
+
+  - name: start tomcat
+    systemd:
+      name: tomcat
+      daemon_reload: yes
+      state: restarted
+      enabled: yes
+
